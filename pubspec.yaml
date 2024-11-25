@@ -12,6 +12,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_dotenv: ^5.2.1
+  google_maps_flutter: ^2.10.0
+  geocoding: ^3.0.0
+  location: ^7.0.1
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +26,4 @@ flutter:
 
   assets:
     - .env
+    - assets/images/splash/splash_screen.png
