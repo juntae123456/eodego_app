@@ -2,6 +2,8 @@
 
 A new Flutter project.
 
+안드로이드만 테스트해봄 api.34
+
 ## Getting Started
 
 메뉴: 지도, 리스트, ai를 활용한 운동추천, 북마커(저장), 설정
