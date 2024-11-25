@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as loc;
 import 'widget/custom_bottom_navigation_bar.dart';
+import 'widget/bottom_sheet_content.dart'; // 새로운 파일 임포트
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -129,7 +130,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _toggleSheet() {
-    if (_scrollableController.size == 0.02) {
+    if (_scrollableController.size <= 0.02) {
       _scrollableController.animateTo(
         0.3,
         duration: const Duration(milliseconds: 500),
@@ -157,13 +158,21 @@ class _HomePageState extends State<HomePage> {
             onMapCreated: _onMapCreated,
             myLocationEnabled: true,
             myLocationButtonEnabled: false, // 기본 위치 버튼 비활성화
-            zoomControlsEnabled: false,
           ),
           AnimatedOpacity(
             opacity: _sheetOpacity,
             duration: const Duration(milliseconds: 100),
-            child: Container(
-              color: Colors.black.withOpacity(0.7),
+            child: IgnorePointer(
+              ignoring: _sheetOpacity <= 0.1, // 투명도가 0.02 이하일 때 터치 이벤트 무시
+              child: GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).unfocus(); // 검색창 포커스 해제
+                  _toggleSheet();
+                },
+                child: Container(
+                  color: Colors.black.withOpacity(0.7),
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -220,7 +229,8 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
                 setState(() {
-                  _sheetOpacity = notification.extent;
+                  _sheetOpacity =
+                      notification.extent <= 0.12 ? 0.00 : notification.extent;
                   _buttonOpacity = notification.extent >= 0.3
                       ? 0.0
                       : 1.0; // 하단 바 상태에 따라 버튼 투명도 설정
@@ -229,8 +239,8 @@ class _HomePageState extends State<HomePage> {
               },
               child: DraggableScrollableSheet(
                 controller: _scrollableController,
-                initialChildSize: 0.02,
-                minChildSize: 0.02,
+                initialChildSize: 0.1,
+                minChildSize: 0.1,
                 maxChildSize: 0.3,
                 snap: true,
                 builder:
@@ -248,20 +258,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    child: ListView(
-                      controller: scrollController,
-                      children: [
-                        // 여기에 원하는 내용을 추가하세요
-                        ListTile(
-                          title: Text('항목 1'),
-                        ),
-                        ListTile(
-                          title: Text('항목 2'),
-                        ),
-                        ListTile(
-                          title: Text('항목 3'),
-                        ),
-                      ],
+                    child: BottomSheetContent(
+                      scrollController: scrollController,
+                      draggableScrollableController: _scrollableController,
                     ),
                   );
                 },

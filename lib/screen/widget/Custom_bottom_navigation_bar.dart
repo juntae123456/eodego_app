@@ -23,6 +23,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: '리스트',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.question_answer),
+          label: '질문',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.bookmark),
           label: '북마커',
         ),
