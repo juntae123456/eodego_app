@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class QuestionSheet extends StatefulWidget {
-  const QuestionSheet({Key? key}) : super(key: key);
+  final VoidCallback onFinish;
+
+  const QuestionSheet({Key? key, required this.onFinish}) : super(key: key);
 
   @override
   _QuestionSheetState createState() => _QuestionSheetState();
@@ -28,42 +30,71 @@ class _QuestionSheetState extends State<QuestionSheet> {
           Expanded(
             child: Visibility(
               visible: _currentPage <= _totalPages - 1,
-              child: Column(
-                children: [
-                  Text(_getQuestionText(_currentPage)),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _getOptionsCount(_currentPage),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(_getOptionText(_currentPage, index)),
-                        leading: Radio<int>(
-                          value: index,
-                          groupValue: _selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOption = value;
-                            });
-                          },
+              child: Padding(
+                padding: const EdgeInsets.only(top: 80.0),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Text(
+                        _getQuestionText(_currentPage),
+                        style: const TextStyle(
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
                         ),
-                      );
-                    },
-                  ),
-                ],
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _getOptionsCount(_currentPage),
+                        itemBuilder: (context, index) {
+                          return Card(
+                            margin: const EdgeInsets.all(10.0),
+                            child: ListTile(
+                              title: Text(_getOptionText(_currentPage, index)),
+                              leading: Radio<int>(
+                                value: index,
+                                groupValue: _selectedOption,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedOption = value;
+                                  });
+                                },
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _selectedOption = index;
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
             onPressed: () {
               setState(() {
                 if (_currentPage < _totalPages - 1) {
                   _currentPage++;
                   _selectedOption =
                       null; // Reset selected option for next question
+                } else {
+                  widget.onFinish();
                 }
               });
             },
-            child: const Text('Next'),
+            child: Text(_currentPage < _totalPages - 1 ? 'Next' : 'Finish'),
           ),
         ],
       ),
@@ -77,7 +108,7 @@ class _QuestionSheetState extends State<QuestionSheet> {
       case 1:
         return '운동 중 선호하는 활동 유형은 무엇인가요?';
       case 2:
-        return '현운동을 배우는 방식을 선호하시나요?';
+        return '운동을 배우는 방식을 선호하시나요?';
       case 3:
         return '어떤 운동 강도를 선호하시나요?';
       case 4:
