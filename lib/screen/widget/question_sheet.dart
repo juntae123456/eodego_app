@@ -24,7 +24,7 @@ class _QuestionSheetState extends State<QuestionSheet> {
           LinearPercentIndicator(
             lineHeight: 6.0,
             percent: (_currentPage + 1) / _totalPages,
-            backgroundColor: Colors.grey,
+            backgroundColor: Colors.grey[200],
             progressColor: Colors.black,
           ),
           Expanded(
@@ -79,9 +79,11 @@ class _QuestionSheetState extends State<QuestionSheet> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.grey[200],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
-              ),
+              ), // Text color
             ),
             onPressed: () {
               setState(() {
