@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../list_page.dart'; // ListPage 임포트
 import '../home_page.dart'; // HomePage 임포트
 import '../content_page.dart'; // ListPage 임포트
+import '../bookmark_page.dart'; // BookmarkPage 임포트
+import '../setting_page.dart'; // SettingPage 임포트
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -31,7 +33,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bookmark),
-          label: '북마커',
+          label: '즐겨찾기',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.settings),
@@ -82,6 +84,36 @@ class CustomBottomNavigationBar extends StatelessWidget {
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   const ContentPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        } else if (index == 3) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const BookmarkPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        } else if (index == 4) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const SettingPage(),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(
