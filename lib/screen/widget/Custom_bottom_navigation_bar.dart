@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../list_page.dart'; // ListPage 임포트
 import '../home_page.dart'; // HomePage 임포트
+import '../content_page.dart'; // ListPage 임포트
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -66,6 +67,21 @@ class CustomBottomNavigationBar extends StatelessWidget {
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   const ListPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const ContentPage(),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(
