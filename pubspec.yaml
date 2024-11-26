@@ -27,3 +27,4 @@ flutter:
   assets:
     - .env
     - assets/images/splash/splash_screen.png
+    - assets/images/question/question_img.png
