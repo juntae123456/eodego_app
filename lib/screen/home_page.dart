@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   GoogleMapController? _mapController;
-  LatLng _initialPosition = const LatLng(37.7749, -122.4194); // 샌프란시스코 좌표
+  LatLng _initialPosition = const LatLng(35.3959361, 128.7384361); // 샌프란시스코 좌표
   int _selectedIndex = 0;
   loc.LocationData? _currentLocation;
   final DraggableScrollableController _scrollableController =
@@ -116,6 +116,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onItemTapped(int index) {
+    if (_selectedIndex == index) {
+      return; // 현재 페이지와 같은 경우 아무 작업도 하지 않음
+    }
     setState(() {
       _selectedIndex = index;
     });
@@ -198,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: '지역을 검색해주세요.',
+                    hintText: ' 검색해주세요.',
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.search),
                       onPressed: _searchLocation,

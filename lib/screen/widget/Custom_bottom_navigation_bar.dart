@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../list_page.dart'; // ListPage 임포트
+import '../home_page.dart'; // HomePage 임포트
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -38,7 +40,43 @@ class CustomBottomNavigationBar extends StatelessWidget {
       currentIndex: currentIndex,
       selectedItemColor: Colors.black,
       unselectedItemColor: Color(0xFF4A789C),
-      onTap: onTap,
+      onTap: (index) {
+        if (currentIndex == index) {
+          return; // 현재 페이지와 같은 경우 아무 작업도 하지 않음
+        }
+        onTap(index);
+        if (index == 0) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const HomePage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const ListPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        }
+      },
     );
   }
 }
