@@ -24,15 +24,66 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('설정'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text('설정 페이지'),
-          ],
+        automaticallyImplyLeading: false,
+        title: const Center(
+          child: Text('설정', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
+      ),
+      body: ListView(
+        children: [
+          ListTile(
+            leading: Icon(Icons.refresh),
+            title: Text('캐시 삭제'),
+            onTap: () {
+              // Add your cache clearing logic here
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('캐시가 초기화되었습니다.')),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.code),
+            title: Text('오픈소스 라이선스'),
+            onTap: () {
+              showLicensePage(
+                context: context,
+                applicationName: 'HealthApp',
+                applicationVersion: '1.0.0',
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.help),
+            title: Text('Help & Support'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Help & Support'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.email),
+                          title: Text('Email: esse3134@gmail.com'),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text('Close'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,

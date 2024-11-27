@@ -13,7 +13,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
   void _onItemTapped(int index) {
     if (_selectedIndex == index) {
-      return;
+      return; // Do nothing if the same tab is tapped
     }
     setState(() {
       _selectedIndex = index;
@@ -52,7 +52,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
               itemBuilder: (context, index) {
                 return Card(
                   margin: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 10.0),
+                      horizontal: 10.0, vertical: 5.0),
                   child: ListTile(
                     leading: const Icon(Icons.bookmark),
                     title: Text('Item $index'), // Replace with actual item data
