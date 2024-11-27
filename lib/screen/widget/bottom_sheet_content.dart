@@ -37,7 +37,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
         // 검색창
         TextField(
           decoration: InputDecoration(
-            hintText: '종목을 입력하세요',
+            hintText: '종목을 입력하세요.',
             prefixIcon: Icon(Icons.search),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),

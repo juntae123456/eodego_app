@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: ' 검색해주세요.',
+                    hintText: '지역을 검색해주세요.',
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.search),
                       onPressed: _searchLocation,
@@ -272,7 +272,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Positioned(
             right: 16,
-            bottom: 400,
+            top: 200,
             child: AnimatedOpacity(
               opacity: _buttonOpacity,
               duration: const Duration(milliseconds: 300),
