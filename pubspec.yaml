@@ -15,6 +15,11 @@ dependencies:
   google_maps_flutter: ^2.10.0
   geocoding: ^3.0.0
   location: ^7.0.1
+  percent_indicator: ^4.2.4
+  http: ^1.2.2
+  sqflite: ^2.4.1
+  path_provider: ^2.1.5
+  puppeteer: ^3.15.0
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +32,5 @@ flutter:
   assets:
     - .env
     - assets/images/splash/splash_screen.png
+    - assets/images/question/question_img.png
+    - assets/database/markers.db
