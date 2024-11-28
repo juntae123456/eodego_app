@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as loc;
+import 'widget/bottom_sheet_content.dart';
 import 'widget/custom_bottom_navigation_bar.dart';
-import 'widget/bottom_sheet_content.dart'; // 새로운 파일 임포트
+import 'database_helper.dart';
+import 'widget/detail_sheet.dart'; // detail_sheet.dart 파일을 임포트
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,7 +17,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   GoogleMapController? _mapController;
-  LatLng _initialPosition = const LatLng(35.3959361, 128.7384361); // 샌프란시스코 좌표
+  LatLng _initialPosition = const LatLng(35.3959361, 128.7384361);
+  Set<Marker> _markers = {};
+  Set<Marker> _cachedMarkers = {};
   int _selectedIndex = 0;
   loc.LocationData? _currentLocation;
   final DraggableScrollableController _scrollableController =
@@ -23,11 +27,13 @@ class _HomePageState extends State<HomePage> {
 
   double _sheetOpacity = 0.00;
   double _buttonOpacity = 1.0; // 버튼의 초기 투명도 설정
+  bool _showFindButton = true; // "현재 화면에서 찾기" 버튼 표시 여부
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _loadMarkersFromDatabase();
     _scrollableController.addListener(() {
       setState(() {
         _sheetOpacity = _scrollableController.size;
@@ -45,6 +51,7 @@ class _HomePageState extends State<HomePage> {
         LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
       ));
     }
+    _updateVisibleMarkers();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -74,7 +81,62 @@ class _HomePageState extends State<HomePage> {
       if (_currentLocation != null) {
         _initialPosition =
             LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!);
+        if (_mapController != null) {
+          _mapController?.animateCamera(CameraUpdate.newLatLng(
+            LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+          ));
+        }
       }
+    });
+  }
+
+  Future<void> _loadMarkersFromDatabase() async {
+    final List<Map<String, dynamic>> markers =
+        await DatabaseHelper().getMarkers();
+    Set<Marker> newMarkers = {};
+
+    for (var marker in markers) {
+      LatLng position = LatLng(marker['latitude'], marker['longitude']);
+      newMarkers.add(
+        Marker(
+          markerId: MarkerId(marker['id'].toString()), // 마커의 고유 ID
+          position: position, // 위도와 경도를 기반으로 위치 설정
+          infoWindow: InfoWindow(
+            title: marker['name'], // 마커 이름
+            snippet:
+                '${marker['road_addr']} - ${marker['main_event_nm']}', // 주소와 종목 추가
+            onTap: () {
+              // 정보 창을 클릭했을 때 detail_sheet.dart 화면으로 이동
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailSheet(
+                    id: marker['id'],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    setState(() {
+      _cachedMarkers = newMarkers;
+      _updateVisibleMarkers();
+    });
+  }
+
+  void _updateVisibleMarkers() async {
+    if (_mapController == null) return;
+
+    LatLngBounds visibleRegion = await _mapController!.getVisibleRegion();
+    Set<Marker> visibleMarkers = _cachedMarkers.where((marker) {
+      return visibleRegion.contains(marker.position);
+    }).toSet();
+
+    setState(() {
+      _markers = visibleMarkers;
     });
   }
 
@@ -148,6 +210,50 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _filterMarkers(String mainEventName) async {
+    final List<Map<String, dynamic>> markers =
+        await DatabaseHelper().getMarkers();
+    Set<Marker> filteredMarkers = {};
+
+    for (var marker in markers) {
+      if (marker['main_event_nm'] == mainEventName) {
+        LatLng position = LatLng(marker['latitude'], marker['longitude']);
+        filteredMarkers.add(
+          Marker(
+            markerId: MarkerId(marker['id'].toString()), // 마커의 고유 ID
+            position: position, // 위도와 경도를 기반으로 위치 설정
+            infoWindow: InfoWindow(
+              title: marker['name'], // 마커 이름
+              snippet:
+                  '${marker['road_addr']} - ${marker['main_event_nm']}', // 주소와 종목 추가
+              onTap: () {
+                // 정보 창을 클릭했을 때 detail_sheet.dart 화면으로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailSheet(
+                      id: marker['id'],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      }
+    }
+
+    setState(() {
+      _markers = filteredMarkers;
+    });
+  }
+
+  void _toggleFindButton(bool show) {
+    setState(() {
+      _showFindButton = show;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,7 +266,8 @@ class _HomePageState extends State<HomePage> {
             ),
             onMapCreated: _onMapCreated,
             myLocationEnabled: true,
-            myLocationButtonEnabled: false, // 기본 위치 버튼 비활성화
+            myLocationButtonEnabled: false,
+            markers: _markers,
           ),
           AnimatedOpacity(
             opacity: _sheetOpacity,
@@ -185,31 +292,46 @@ class _HomePageState extends State<HomePage> {
             child: AnimatedOpacity(
               opacity: _buttonOpacity,
               duration: const Duration(milliseconds: 300),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10.0,
-                      offset: Offset(0, 2),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10.0,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: '지역을 검색해주세요.',
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.search),
-                      onPressed: _searchLocation,
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: '지역을 검색해주세요.',
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: _searchLocation,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (value) => _searchLocation(),
                     ),
-                    border: InputBorder.none,
                   ),
-                  onSubmitted: (value) => _searchLocation(),
-                ),
+                  const SizedBox(height: 8),
+                  if (_showFindButton)
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white, // 버튼 배경색을 흰색으로 설정
+                        ),
+                        onPressed: _updateVisibleMarkers,
+                        child: const Text(
+                          '현재 화면에서 찾기',
+                          style: TextStyle(color: Color(0xFF4A789C)),
+                        ))
+                ],
               ),
             ),
           ),
@@ -264,6 +386,9 @@ class _HomePageState extends State<HomePage> {
                     child: BottomSheetContent(
                       scrollController: scrollController,
                       draggableScrollableController: _scrollableController,
+                      onFilterMarkers: _filterMarkers, // 필터링 함수 전달
+                      onToggleFindButton:
+                          _toggleFindButton, // "현재 화면에서 찾기" 버튼 토글 함수 전달
                     ),
                   );
                 },
