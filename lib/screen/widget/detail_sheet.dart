@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../database_helper.dart';
@@ -36,8 +37,7 @@ class _DetailSheetState extends State<DetailSheet> {
   }
 
   Future<void> _fetchApiData(String brno) async {
-    final String apiKey =
-        'gPtkOvEliK1AvYI39wzlWkUK%2Bp%2Bvy8FLmAoLG%2FoSZDmGCCYEtwNAzfM14q9nsV8Y2NoPl4GiVI8aY69JUBxQ2A%3D%3D';
+    final String apiKey = dotenv.env['DATA_API_KEY']!;
     final String apiUrl =
         'https://apis.data.go.kr/B551014/SRVC_OD_API_FACIL_COURSE/todz_api_facil_course_i?serviceKey=$apiKey&pageNo=1&numOfRows=10&resultType=JSON&brno=$brno';
 
