@@ -110,11 +110,20 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailSheet(
-                    id: marker['id'],
-                  ),
+                  builder: (context) => DetailSheet(id: marker['id']),
                 ),
-              );
+              ).then((_) {
+                setState(() {
+                  _sheetOpacity = 0.0;
+                  _buttonOpacity = 1.0;
+                  FocusScope.of(context).unfocus();
+                  _scrollableController.animateTo(
+                    0.1,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                });
+              });
             },
           ),
         ),
@@ -231,11 +240,20 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetailSheet(
-                      id: marker['id'],
-                    ),
+                    builder: (context) => DetailSheet(id: marker['id']),
                   ),
-                );
+                ).then((_) {
+                  setState(() {
+                    _sheetOpacity = 0.0;
+                    _buttonOpacity = 1.0;
+                    FocusScope.of(context).unfocus();
+                    _scrollableController.animateTo(
+                      0.1,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  });
+                });
               },
             ),
           ),
@@ -268,6 +286,7 @@ class _HomePageState extends State<HomePage> {
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             markers: _markers,
+            zoomControlsEnabled: false,
           ),
           AnimatedOpacity(
             opacity: _sheetOpacity,

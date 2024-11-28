@@ -83,6 +83,13 @@ class _DetailSheetState extends State<DetailSheet> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_markerData!['name']),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            FocusScope.of(context).unfocus(); // 키보드 닫기
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -103,10 +110,8 @@ class _DetailSheetState extends State<DetailSheet> {
             SizedBox(height: 8),
             Text(_markerData!['main_event_nm'], style: TextStyle(fontSize: 16)),
             SizedBox(height: 16),
-            Text(
-              '사업자 번호:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+            Text('사업자 번호:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             SizedBox(height: 8),
             Text(_markerData!['brno'], style: TextStyle(fontSize: 16)),
             SizedBox(height: 16),
