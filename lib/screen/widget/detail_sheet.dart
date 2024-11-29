@@ -39,7 +39,7 @@ class _DetailSheetState extends State<DetailSheet> {
   Future<void> _fetchApiData(String brno) async {
     final String apiKey = dotenv.env['DATA_API_KEY']!;
     final String apiUrl =
-        'https://apis.data.go.kr/B551014/SRVC_OD_API_FACIL_COURSE/todz_api_facil_course_i?serviceKey=$apiKey&pageNo=1&numOfRows=10&resultType=JSON&brno=$brno';
+        'https://apis.data.go.kr/B551014/SRVC_OD_API_FACIL_COURSE/todz_api_facil_course_i?serviceKey=$apiKey&pageNo=1&numOfRows=1&resultType=JSON&brno=$brno';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -72,7 +72,7 @@ class _DetailSheetState extends State<DetailSheet> {
     if (_markerData == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Loading...'),
+          title: Center(child: Text('Loading...')),
         ),
         body: Center(
           child: CircularProgressIndicator(),
@@ -83,13 +83,6 @@ class _DetailSheetState extends State<DetailSheet> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_markerData!['name']),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            FocusScope.of(context).unfocus(); // 키보드 닫기
-            Navigator.pop(context);
-          },
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
