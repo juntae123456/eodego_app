@@ -115,7 +115,6 @@ class _HomePageState extends State<HomePage> {
             snippet:
                 '${marker['road_addr']} - ${marker['main_event_nm']}', // 주소와 종목 추가
             onTap: () {
-              // 정보 창을 클릭했을 때 detail_sheet.dart 화면으로 이동
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -248,7 +247,6 @@ class _HomePageState extends State<HomePage> {
               snippet:
                   '${marker['road_addr']} - ${marker['main_event_nm']}', // 주소와 종목 추가
               onTap: () {
-                // 정보 창을 클릭했을 때 detail_sheet.dart 화면으로 이동
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -292,7 +290,7 @@ class _HomePageState extends State<HomePage> {
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: _initialPosition,
-              zoom: 10,
+              zoom: 15,
             ),
             onMapCreated: _onMapCreated,
             myLocationEnabled: true,
