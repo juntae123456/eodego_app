@@ -24,6 +24,7 @@ class _DetailSheetState extends State<DetailSheet> {
     super.initState();
     _loadMarkerData();
     _loadWebData();
+    _checkIfBookmarked();
   }
 
   Future<void> _loadMarkerData() async {
@@ -78,6 +79,27 @@ class _DetailSheetState extends State<DetailSheet> {
     return operatingDays.join(', ');
   }
 
+  bool _isBookmarked = false;
+
+  Future<void> _toggleBookmark() async {
+    setState(() {
+      _isBookmarked = !_isBookmarked;
+    });
+
+    if (_isBookmarked) {
+      await DatabaseHelper().addBookmark(widget.id);
+    } else {
+      await DatabaseHelper().removeBookmark(widget.id);
+    }
+  }
+
+  Future<void> _checkIfBookmarked() async {
+    final isBookmarked = await DatabaseHelper().isBookmarked(widget.id);
+    setState(() {
+      _isBookmarked = isBookmarked;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_markerData == null) {
@@ -94,7 +116,7 @@ class _DetailSheetState extends State<DetailSheet> {
     return Scaffold(
       appBar: AppBar(
         title: Padding(
-          padding: const EdgeInsets.only(right: 70.0),
+          padding: const EdgeInsets.only(right: 10),
           child: Center(
             child: Text(
               _markerData!['main_event_nm'],
@@ -109,6 +131,15 @@ class _DetailSheetState extends State<DetailSheet> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+              color: _isBookmarked ? Colors.yellow : null,
+            ),
+            onPressed: _toggleBookmark,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(13.0),
