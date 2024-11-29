@@ -185,7 +185,6 @@ class GptQuestion {
   String? get prompt => _prompt;
 
   Future<String> getRecommendation() async {
-    print('호출됨');
     final apiKey = dotenv.env['GPT_API_KEY'];
     if (apiKey == null) {
       throw Exception('API key not found');

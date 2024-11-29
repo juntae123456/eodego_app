@@ -110,7 +110,7 @@ class _DetailSheetState extends State<DetailSheet> {
           },
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(13.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
