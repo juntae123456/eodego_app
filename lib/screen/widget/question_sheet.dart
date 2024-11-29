@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'gpt_question.dart';
 
 class QuestionSheet extends StatefulWidget {
   final VoidCallback onFinish;
@@ -88,10 +89,14 @@ class _QuestionSheetState extends State<QuestionSheet> {
             onPressed: () {
               setState(() {
                 if (_currentPage < _totalPages - 1) {
+                  GptQuestion().saveAnswer(
+                      _currentPage, _selectedOption); // 현재 질문에 대한 답변 저장
                   _currentPage++;
                   _selectedOption =
                       null; // Reset selected option for next question
                 } else {
+                  GptQuestion().saveAnswer(
+                      _currentPage, _selectedOption); // 마지막 질문에 대한 답변 저장
                   widget.onFinish();
                 }
               });
