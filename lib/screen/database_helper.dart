@@ -98,4 +98,22 @@ class DatabaseHelper {
 
     return result.map((row) => row['main_event_nm'] as String).toList();
   }
+
+  Future<List<Map<String, dynamic>>> getMarkersByEvent(String eventName) async {
+    final db = await database;
+    return await db.query(
+      'markers',
+      where: 'main_event_nm = ?',
+      whereArgs: [eventName],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getMarkersByName(String name) async {
+    final db = await database;
+    return await db.query(
+      'markers',
+      where: 'name LIKE ?',
+      whereArgs: ['%$name%'],
+    );
+  }
 }
