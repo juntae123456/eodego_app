@@ -29,7 +29,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.question_answer),
-          label: '질문',
+          label: '운동추천',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bookmark),

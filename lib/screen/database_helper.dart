@@ -37,7 +37,24 @@ class DatabaseHelper {
       print('Database already exists at $path');
     }
 
-    return await openDatabase(path, version: 1);
+    return await openDatabase(
+      path,
+      version: 2, // Increment the version number
+      onCreate: (db, version) async {
+        // Create the bookmarks table
+        await db.execute(
+          "CREATE TABLE bookmarks(id INTEGER PRIMARY KEY)",
+        );
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          // Create the bookmarks table if it doesn't exist
+          await db.execute(
+            "CREATE TABLE bookmarks(id INTEGER PRIMARY KEY)",
+          );
+        }
+      },
+    );
   }
 
   Future<void> insertMarker(Map<String, dynamic> marker) async {
@@ -97,5 +114,68 @@ class DatabaseHelper {
     );
 
     return result.map((row) => row['main_event_nm'] as String).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getMarkersByEvent(String eventName) async {
+    final db = await database;
+    return await db.query(
+      'markers',
+      where: 'main_event_nm = ?',
+      whereArgs: [eventName],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getMarkersByName(String name) async {
+    final db = await database;
+    return await db.query(
+      'markers',
+      where: 'name LIKE ?',
+      whereArgs: ['%$name%'],
+    );
+  }
+
+  Future<void> addBookmark(int id) async {
+    final db = await database;
+    await db.insert(
+      'bookmarks',
+      {'id': id},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> removeBookmark(int id) async {
+    final db = await database;
+    await db.delete(
+      'bookmarks',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<bool> isBookmarked(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'bookmarks',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return maps.isNotEmpty;
+  }
+
+  Future<List<Map<String, dynamic>>> getBookmarkedMarkers() async {
+    final db = await database;
+    final List<Map<String, dynamic>> bookmarks = await db.query('bookmarks');
+    if (bookmarks.isEmpty) {
+      return [];
+    }
+
+    final List<int> ids =
+        bookmarks.map((bookmark) => bookmark['id'] as int).toList();
+    final List<Map<String, dynamic>> markers = await db.query(
+      'markers',
+      where: 'id IN (${ids.join(', ')})',
+    );
+
+    return markers;
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 import 'widget/custom_bottom_navigation_bar.dart';
+import 'widget/detail_sheet.dart'; // detail_sheet.dart 파일을 임포트
 
 class BookmarkPage extends StatefulWidget {
   const BookmarkPage({Key? key}) : super(key: key);
@@ -10,6 +12,21 @@ class BookmarkPage extends StatefulWidget {
 
 class _BookmarkPageState extends State<BookmarkPage> {
   int _selectedIndex = 3;
+  List<Map<String, dynamic>> _bookmarkedMarkers = [];
+  String _searchQuery = ''; // 검색 쿼리 변수 추가
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBookmarkedMarkers();
+  }
+
+  Future<void> _loadBookmarkedMarkers() async {
+    final markers = await DatabaseHelper().getBookmarkedMarkers();
+    setState(() {
+      _bookmarkedMarkers = markers;
+    });
+  }
 
   void _onItemTapped(int index) {
     if (_selectedIndex == index) {
@@ -22,6 +39,11 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredMarkers = _bookmarkedMarkers.where((marker) {
+      final name = marker['name']?.toLowerCase() ?? '';
+      return name.contains(_searchQuery.toLowerCase());
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -34,8 +56,13 @@ class _BookmarkPageState extends State<BookmarkPage> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
               decoration: InputDecoration(
-                hintText: '종목으로 검색하기',
+                hintText: '이름으로 검색하기',
                 prefixIcon: Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.grey[200],
@@ -48,22 +75,31 @@ class _BookmarkPageState extends State<BookmarkPage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: 10, // Replace with the actual number of items
+              itemCount: filteredMarkers.length,
               itemBuilder: (context, index) {
+                final marker = filteredMarkers[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(
                       horizontal: 10.0, vertical: 5.0),
                   child: ListTile(
                     leading: const Icon(Icons.bookmark),
-                    title: Text('Item $index'), // Replace with actual item data
-                    subtitle: Text(
-                        'Description for item $index'), // Replace with actual item data
+                    title: Text(marker['name']),
+                    subtitle: Text(marker['road_addr']),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        // Handle delete action
+                      onPressed: () async {
+                        await DatabaseHelper().removeBookmark(marker['id']);
+                        _loadBookmarkedMarkers(); // Reload the bookmarks
                       },
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailSheet(id: marker['id']),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

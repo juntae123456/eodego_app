@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   GoogleMapController? _mapController;
+  late ClusterManager clusterManagers; // 클러스터 매니저
   LatLng _initialPosition = const LatLng(35.3959361, 128.7384361);
   Set<Marker> _markers = {};
   Set<Marker> _cachedMarkers = {};
@@ -42,6 +43,13 @@ class _HomePageState extends State<HomePage> {
             : 1.0; // 하단 바 상태에 따라 버튼 투명도 설정
       });
     });
+    clusterManagers = ClusterManager(
+      clusterManagerId: const ClusterManagerId("clusterManagerId"),
+      onClusterTap: (Cluster cluster) => setState(() {
+        _mapController
+            ?.animateCamera(CameraUpdate.newLatLngBounds(cluster.bounds, 50));
+      }),
+    );
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -99,6 +107,7 @@ class _HomePageState extends State<HomePage> {
       LatLng position = LatLng(marker['latitude'], marker['longitude']);
       newMarkers.add(
         Marker(
+          clusterManagerId: clusterManagers.clusterManagerId,
           markerId: MarkerId(marker['id'].toString()), // 마커의 고유 ID
           position: position, // 위도와 경도를 기반으로 위치 설정
           infoWindow: InfoWindow(
@@ -110,11 +119,20 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailSheet(
-                    id: marker['id'],
-                  ),
+                  builder: (context) => DetailSheet(id: marker['id']),
                 ),
-              );
+              ).then((_) {
+                setState(() {
+                  _sheetOpacity = 0.0;
+                  _buttonOpacity = 1.0;
+                  FocusScope.of(context).unfocus();
+                  _scrollableController.animateTo(
+                    0.1,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                });
+              });
             },
           ),
         ),
@@ -142,14 +160,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _moveToCurrentLocation() async {
     if (_currentLocation != null) {
-      _mapController?.animateCamera(CameraUpdate.newLatLng(
+      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(
         LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+        15, // 줌인 레벨 설정
       ));
     } else {
       await _getCurrentLocation();
       if (_currentLocation != null) {
-        _mapController?.animateCamera(CameraUpdate.newLatLng(
+        _mapController?.animateCamera(CameraUpdate.newLatLngZoom(
           LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+          15, // 줌인 레벨 설정
         ));
       }
     }
@@ -163,7 +183,8 @@ class _HomePageState extends State<HomePage> {
         if (locations.isNotEmpty) {
           Location location = locations.first;
           LatLng newPosition = LatLng(location.latitude, location.longitude);
-          _mapController?.animateCamera(CameraUpdate.newLatLng(newPosition));
+          _mapController
+              ?.animateCamera(CameraUpdate.newLatLngZoom(newPosition, 15));
           setState(() {
             _initialPosition = newPosition;
             _searchController.clear(); // 검색창 지우기
@@ -231,11 +252,20 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetailSheet(
-                      id: marker['id'],
-                    ),
+                    builder: (context) => DetailSheet(id: marker['id']),
                   ),
-                );
+                ).then((_) {
+                  setState(() {
+                    _sheetOpacity = 0.0;
+                    _buttonOpacity = 1.0;
+                    FocusScope.of(context).unfocus();
+                    _scrollableController.animateTo(
+                      0.1,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  });
+                });
               },
             ),
           ),
@@ -268,6 +298,8 @@ class _HomePageState extends State<HomePage> {
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             markers: _markers,
+            zoomControlsEnabled: false,
+            clusterManagers: {clusterManagers},
           ),
           AnimatedOpacity(
             opacity: _sheetOpacity,

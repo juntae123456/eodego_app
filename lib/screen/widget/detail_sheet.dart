@@ -24,6 +24,7 @@ class _DetailSheetState extends State<DetailSheet> {
     super.initState();
     _loadMarkerData();
     _loadWebData();
+    _checkIfBookmarked();
   }
 
   Future<void> _loadMarkerData() async {
@@ -39,7 +40,7 @@ class _DetailSheetState extends State<DetailSheet> {
   Future<void> _fetchApiData(String brno) async {
     final String apiKey = dotenv.env['DATA_API_KEY']!;
     final String apiUrl =
-        'https://apis.data.go.kr/B551014/SRVC_OD_API_FACIL_COURSE/todz_api_facil_course_i?serviceKey=$apiKey&pageNo=1&numOfRows=10&resultType=JSON&brno=$brno';
+        'https://apis.data.go.kr/B551014/SRVC_OD_API_FACIL_COURSE/todz_api_facil_course_i?serviceKey=$apiKey&pageNo=1&numOfRows=1&resultType=JSON&brno=$brno';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -67,12 +68,44 @@ class _DetailSheetState extends State<DetailSheet> {
     }
   }
 
+  String _getOperatingDays(String weekdayVal) {
+    List<String> days = ['월', '화', '수', '목', '금', '토', '일'];
+    List<String> operatingDays = [];
+    for (int i = 0; i < weekdayVal.length; i++) {
+      if (weekdayVal[i] == '1') {
+        operatingDays.add(days[i]);
+      }
+    }
+    return operatingDays.join(', ');
+  }
+
+  bool _isBookmarked = false;
+
+  Future<void> _toggleBookmark() async {
+    setState(() {
+      _isBookmarked = !_isBookmarked;
+    });
+
+    if (_isBookmarked) {
+      await DatabaseHelper().addBookmark(widget.id);
+    } else {
+      await DatabaseHelper().removeBookmark(widget.id);
+    }
+  }
+
+  Future<void> _checkIfBookmarked() async {
+    final isBookmarked = await DatabaseHelper().isBookmarked(widget.id);
+    setState(() {
+      _isBookmarked = isBookmarked;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_markerData == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Loading...'),
+          title: Center(child: Text('Loading...')),
         ),
         body: Center(
           child: CircularProgressIndicator(),
@@ -82,69 +115,122 @@ class _DetailSheetState extends State<DetailSheet> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_markerData!['name']),
+        title: Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Text(
+              _markerData!['main_event_nm'],
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            FocusScope.of(context).unfocus(); // 키보드 닫기
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+              color: _isBookmarked ? Colors.yellow : null,
+            ),
+            onPressed: _toggleBookmark,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(13.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Address:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+            Text(_markerData!['name'],
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            Text(_markerData!['road_addr'], style: TextStyle(fontSize: 16)),
-            SizedBox(height: 16),
-            Text(
-              'Main Event:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+            Text(_markerData!['main_event_nm'],
+                style: TextStyle(fontSize: 14, color: Color(0xFF4A709C))),
             SizedBox(height: 8),
-            Text(_markerData!['main_event_nm'], style: TextStyle(fontSize: 16)),
-            SizedBox(height: 16),
-            Text(
-              '사업자 번호:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            SizedBox(height: 8),
-            Text(_markerData!['brno'], style: TextStyle(fontSize: 16)),
-            SizedBox(height: 16),
-            if (_apiData != null) ...[
-              Text(
-                'API Data:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              SizedBox(height: 8),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _apiData!.length,
-                  itemBuilder: (context, index) {
-                    final item = _apiData![index];
-                    return ListTile(
-                      title: Text(item['course_nm']),
-                      subtitle: Text(item['facil_sn']),
-                    );
-                  },
+            Row(
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.access_time,
+                        color: Colors.black, size: 26.0),
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('운영시간',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    if (_apiData != null && _apiData!.isNotEmpty) ...[
+                      Text(
+                        _getOperatingDays(_apiData![0]['lectr_weekday_val']),
+                        style: const TextStyle(
+                            fontSize: 14, color: Color(0xFF4A709C)),
+                      ),
+                      Text(
+                        '${_apiData![0]['start_tm']} ~ ${_apiData![0]['equip_tm']}',
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF4A709C)),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
             SizedBox(height: 16),
+            Text('상세정보',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 18),
+            if (_apiData != null && _apiData!.isNotEmpty) ...[
+              Text('강사명 : ${_apiData![0]['lectr_nm']}',
+                  style: TextStyle(fontSize: 16)),
+              SizedBox(height: 18),
+            ],
+            Text('사업자 번호 : ${_markerData!['brno']}',
+                style: TextStyle(fontSize: 16)),
+            SizedBox(height: 18),
             if (_webData != null) ...[
-              Text(
-                'Web Data:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
               SizedBox(height: 8),
-              Text('Homepage: ${_webData!['homepage']}',
-                  style: TextStyle(fontSize: 16)),
-              SizedBox(height: 8),
-              Text('Phone: ${_webData!['phone']}',
-                  style: TextStyle(fontSize: 16)),
-              SizedBox(height: 8),
-              Text('Status: ${_webData!['status']}',
+              Text('현재 상태 : ${_webData!['status']}',
                   style: TextStyle(fontSize: 16)),
             ],
+            if (_apiData != null && _apiData!.isNotEmpty) ...[
+              Text('강좌 가격 : ${_apiData![0]['settl_amt']}원',
+                  style: TextStyle(fontSize: 16)),
+            ],
+            SizedBox(height: 18),
+            if (_webData != null) ...[
+              SizedBox(height: 8),
+              Text('전화번호: ${_webData!['phone']}',
+                  style: TextStyle(fontSize: 16)),
+            ],
+            SizedBox(height: 18),
+            if (_webData != null) ...[
+              Text('홈페이지 : ${_webData!['homepage']}',
+                  style: TextStyle(fontSize: 16)),
+            ],
+            SizedBox(height: 18),
+            Text('주소 : ${_markerData!['road_addr']}',
+                style: TextStyle(fontSize: 16)),
+            SizedBox(height: 18),
+            if (_apiData != null && _apiData!.isNotEmpty) ...[
+              Text('상세 설명 : ${_apiData![0]['course_seta_desc_cn']}',
+                  style: TextStyle(fontSize: 16)),
+            ] else ...[
+              Text('상세 설명 : -', style: TextStyle(fontSize: 16)),
+            ],
+            SizedBox(height: 18),
           ],
         ),
       ),
