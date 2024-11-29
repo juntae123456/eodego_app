@@ -83,6 +83,13 @@ class _DetailSheetState extends State<DetailSheet> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_markerData!['name']),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            FocusScope.of(context).unfocus(); // 키보드 닫기
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
