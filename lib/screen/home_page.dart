@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   GoogleMapController? _mapController;
+  late ClusterManager clusterManagers; // 클러스터 매니저
   LatLng _initialPosition = const LatLng(35.3959361, 128.7384361);
   Set<Marker> _markers = {};
   Set<Marker> _cachedMarkers = {};
@@ -42,6 +43,13 @@ class _HomePageState extends State<HomePage> {
             : 1.0; // 하단 바 상태에 따라 버튼 투명도 설정
       });
     });
+    clusterManagers = ClusterManager(
+      clusterManagerId: const ClusterManagerId("clusterManagerId"),
+      onClusterTap: (Cluster cluster) => setState(() {
+        _mapController
+            ?.animateCamera(CameraUpdate.newLatLngBounds(cluster.bounds, 50));
+      }),
+    );
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -99,6 +107,7 @@ class _HomePageState extends State<HomePage> {
       LatLng position = LatLng(marker['latitude'], marker['longitude']);
       newMarkers.add(
         Marker(
+          clusterManagerId: clusterManagers.clusterManagerId,
           markerId: MarkerId(marker['id'].toString()), // 마커의 고유 ID
           position: position, // 위도와 경도를 기반으로 위치 설정
           infoWindow: InfoWindow(
@@ -290,6 +299,7 @@ class _HomePageState extends State<HomePage> {
             myLocationButtonEnabled: false,
             markers: _markers,
             zoomControlsEnabled: false,
+            clusterManagers: {clusterManagers},
           ),
           AnimatedOpacity(
             opacity: _sheetOpacity,
