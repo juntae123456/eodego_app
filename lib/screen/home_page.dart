@@ -98,6 +98,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //마커클러스터시 고장이슈
   Future<void> _loadMarkersFromDatabase() async {
     final List<Map<String, dynamic>> markers =
         await DatabaseHelper().getMarkers();
@@ -107,13 +108,12 @@ class _HomePageState extends State<HomePage> {
       LatLng position = LatLng(marker['latitude'], marker['longitude']);
       newMarkers.add(
         Marker(
-          clusterManagerId: clusterManagers.clusterManagerId,
+          //clusterManagerId: clusterManagers.clusterManagerId,
           markerId: MarkerId(marker['id'].toString()), // 마커의 고유 ID
           position: position, // 위도와 경도를 기반으로 위치 설정
           infoWindow: InfoWindow(
             title: marker['name'], // 마커 이름
-            snippet:
-                '${marker['road_addr']} - ${marker['main_event_nm']}', // 주소와 종목 추가
+            snippet: '${marker['road_addr']} - ${marker['main_event_nm']}',
             onTap: () {
               Navigator.push(
                 context,
