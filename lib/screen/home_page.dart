@@ -151,14 +151,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _moveToCurrentLocation() async {
     if (_currentLocation != null) {
-      _mapController?.animateCamera(CameraUpdate.newLatLng(
+      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(
         LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+        15, // 줌인 레벨 설정
       ));
     } else {
       await _getCurrentLocation();
       if (_currentLocation != null) {
-        _mapController?.animateCamera(CameraUpdate.newLatLng(
+        _mapController?.animateCamera(CameraUpdate.newLatLngZoom(
           LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
+          15, // 줌인 레벨 설정
         ));
       }
     }
@@ -172,7 +174,8 @@ class _HomePageState extends State<HomePage> {
         if (locations.isNotEmpty) {
           Location location = locations.first;
           LatLng newPosition = LatLng(location.latitude, location.longitude);
-          _mapController?.animateCamera(CameraUpdate.newLatLng(newPosition));
+          _mapController
+              ?.animateCamera(CameraUpdate.newLatLngZoom(newPosition, 15));
           setState(() {
             _initialPosition = newPosition;
             _searchController.clear(); // 검색창 지우기
