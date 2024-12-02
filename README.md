@@ -29,10 +29,9 @@
 
 ## 구현 기능
 
-|지도화면|리스트화면|
-|:---:|:---:|
-|<img src="https://github.com/user-attachments/assets/19a8b465-b68d-4120-852c-c63c0eb8d078" width="300"/>|<img src="https://github.com/user-attachments/assets/0715fbbc-ef11-4551-b672-86754ddc9927" width="300"/>|
-
+|지도화면|리스트화면|ai운동추천|즐겨찾기|
+|:---:|:---:|:---:|:---:|
+|<img src="https://github.com/user-attachments/assets/19a8b465-b68d-4120-852c-c63c0eb8d078" width="300"/>|<img src="https://github.com/user-attachments/assets/0715fbbc-ef11-4551-b672-86754ddc9927" width="300"/>|<img src="https://github.com/user-attachments/assets/e8681d43-f9f5-4c20-a232-9e794e35114f" width="300"/>|<img src="https://github.com/user-attachments/assets/795a7c9d-8031-4f44-adce-907005acba59" width="300"/>|
 
 
 <br>
