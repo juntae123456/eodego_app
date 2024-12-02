@@ -19,6 +19,13 @@ ext {
     }
 }
 
+ext {
+    androidapikey = dotenv.getProperty('ANDROID_API_KEY')
+    if (androidapikey == null) {
+        throw new RuntimeException("Could not find ANDROID_API_KEY in .env file")
+    }
+}
+
 android {
     namespace = "com.example.healthapp"
     compileSdk = flutter.compileSdkVersion
@@ -42,6 +49,7 @@ android {
 
         manifestPlaceholders = [
             GOOGLE_MAP_API_KEY: googleApiKey,
+            ANDROID_API_KEY: androidapikey, // 추가된 부분
             applicationName: "android.app.Application"
         ]
     }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:healthapp/screen/widget/admob_service';
 import 'database_helper.dart';
 import 'widget/custom_bottom_navigation_bar.dart';
 import 'widget/detail_sheet.dart'; // detail_sheet.dart 파일을 임포트
@@ -14,11 +16,14 @@ class _BookmarkPageState extends State<BookmarkPage> {
   int _selectedIndex = 3;
   List<Map<String, dynamic>> _bookmarkedMarkers = [];
   String _searchQuery = ''; // 검색 쿼리 변수 추가
+  late BannerAd _bannerAd;
+  bool _isBannerAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadBookmarkedMarkers();
+    _loadBannerAd();
   }
 
   Future<void> _loadBookmarkedMarkers() async {
@@ -26,6 +31,27 @@ class _BookmarkPageState extends State<BookmarkPage> {
     setState(() {
       _bookmarkedMarkers = markers;
     });
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdMobService.bannerAdUnitId!,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          setState(() {
+            _isBannerAdLoaded = false;
+          });
+        },
+      ),
+    )..load();
   }
 
   void _onItemTapped(int index) {
@@ -105,6 +131,13 @@ class _BookmarkPageState extends State<BookmarkPage> {
               },
             ),
           ),
+          if (_isBannerAdLoaded)
+            Container(
+              alignment: Alignment.center,
+              child: AdWidget(ad: _bannerAd),
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.height.toDouble(),
+            ),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(

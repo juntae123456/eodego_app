@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:healthapp/screen/widget/admob_service';
 import 'widget/Custom_bottom_navigation_bar.dart';
 
 class SettingPage extends StatefulWidget {
@@ -10,6 +12,34 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   int _selectedIndex = 4;
+  late BannerAd _bannerAd;
+  bool _isBannerAdLoaded = false;
+
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdMobService.bannerAdUnitId!,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          setState(() {
+            _isBannerAdLoaded = false;
+          });
+        },
+      ),
+    )..load();
+  }
 
   void _onItemTapped(int index) {
     if (_selectedIndex == index) {
@@ -120,6 +150,13 @@ class _SettingPageState extends State<SettingPage> {
               );
             },
           ),
+          if (_isBannerAdLoaded)
+            Container(
+              alignment: Alignment.center,
+              child: AdWidget(ad: _bannerAd),
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.height.toDouble(),
+            ),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
