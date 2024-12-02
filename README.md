@@ -31,8 +31,10 @@
 
 |안드로이드|ios|
 |:---:|:---:|
-|<video src="https://github.com/user-attachments/assets/f1e9848e-f348-4207-8a64-ed724df7cbd7" width="400"/>|<video src="https://github.com/user-attachments/assets/104faf42-0777-4325-80b6-8fd06b4071f6" width="400"/>|
+|<img src="https://github.com/user-attachments/assets/19a8b465-b68d-4120-852c-c63c0eb8d078" width="400"/>|<img src="https://github.com/user-attachments/assets/0715fbbc-ef11-4551-b672-86754ddc9927" width="400"/>|
 
+
+![Screenshot_1733103101]()
 
 <br>
 
