@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:healthapp/screen/widget/admob_service';
 import '../content_page.dart';
 import 'gpt_question.dart';
 
@@ -11,11 +13,13 @@ class QuestionEndSheet extends StatefulWidget {
 
 class _QuestionEndSheetState extends State<QuestionEndSheet> {
   String? _recommendation;
+  InterstitialAd? _interstitialAd;
 
   @override
   void initState() {
     super.initState();
     _getRecommendation();
+    _loadInterstitialAd();
   }
 
   Future<void> _getRecommendation() async {
@@ -28,6 +32,30 @@ class _QuestionEndSheetState extends State<QuestionEndSheet> {
     } catch (e) {
       print('Failed to load recommendation: $e');
     }
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdMobService.interstitialAdUnitId!,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          setState(() {
+            _interstitialAd = ad;
+          });
+          _interstitialAd?.show();
+        },
+        onAdFailedToLoad: (error) {
+          print('InterstitialAd failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -81,7 +109,7 @@ class _QuestionEndSheetState extends State<QuestionEndSheet> {
                   ),
                 );
               },
-              child: const Text('확인'),
+              child: const Text('되돌아가기'),
             ),
           ],
         ),
