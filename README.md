@@ -29,12 +29,11 @@
 
 ## 구현 기능
 
-|안드로이드|ios|
+|지도화면|리스트화면|
 |:---:|:---:|
-|<img src="https://github.com/user-attachments/assets/19a8b465-b68d-4120-852c-c63c0eb8d078" width="400"/>|<img src="https://github.com/user-attachments/assets/0715fbbc-ef11-4551-b672-86754ddc9927" width="400"/>|
+|<img src="https://github.com/user-attachments/assets/19a8b465-b68d-4120-852c-c63c0eb8d078" width="300"/>|<img src="https://github.com/user-attachments/assets/0715fbbc-ef11-4551-b672-86754ddc9927" width="300"/>|
 
 
-![Screenshot_1733103101]()
 
 <br>
 
