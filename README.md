@@ -2,7 +2,7 @@
 
 <p align="center">
   <br>
-![E08WotWXTuXM_1024_500](https://github.com/user-attachments/assets/fb4c3a14-d52d-403c-b118-f741ba61bdcf)
+<image = ![E08WotWXTuXM_1024_500](https://github.com/user-attachments/assets/fb4c3a14-d52d-403c-b118-f741ba61bdcf)>
   <br>
 </p>
 
